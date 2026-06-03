@@ -1,0 +1,10 @@
+solver:
+  grid:
+    N_cutback_max: 10
+    mechanical:
+      N_iter_min: 1
+      N_iter_max: 100
+      eps_abs_div(P): 1.0e-10
+      eps_rel_div(P): 5.0e-4
+      eps_abs_P: 1.0e3
+      eps_rel_P: 1.0e-4

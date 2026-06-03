@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+#CONDA INSTALLER
+Miniforge3-Linux-x86_64.sh
+
+# DAMASK / simulation outputs
+*.hdf5
+*.vti
+*.vtr
+results_*/
+remap_log*.txt
+
+#OS
+.DS_Store
+
+
+CLAUDE.md

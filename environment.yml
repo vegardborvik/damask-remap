@@ -1,0 +1,13 @@
+name: damask-remap
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pyyaml
+  - h5py
+  - numpy
+  - scipy
+  - matplotlib
+  - vtk
+  - pandas
+prefix: /home/vegard/miniforge3/envs/damask-remap
