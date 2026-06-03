@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "damask-remap"
+version = "0.1.0"
+description = "Orientation-based remapping for DAMASK crystal plasticity simulations"
+requires-python = ">=3.12"
+dependencies = [
+    "damask",
+    "typer",
+    "numpy",
+    "pandas",
+    "pyyaml",
+]
+
+[project.scripts]
+damask-remap = "damask_remap.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
