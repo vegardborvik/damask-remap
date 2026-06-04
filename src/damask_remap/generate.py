@@ -1,5 +1,6 @@
 import numpy as np
 import damask
+import yaml
 
 # Initializing standard material physics for Aluminium phase
 # Parameters taken from the example file from DAMASK
@@ -52,11 +53,49 @@ def make_material(n_grains: int, phase: str, seed: int | None):
     return config.material_add(phase=phase, O=orientations, homogenization="SX")
 
 
-def generate_inputs(cells, size, phase, seed, out_grid, out_material):
+def make_loadcase(
+    mode: str, solver: str, t: int, N: int, rate: float, output_file: str
+):
+
+    if mode == "rolling":
+        bc = [[rate, 0, 0], [0, 0, 0], [0, 0, -rate]]
+        loadstep = {
+            "boundary_conditions": {"mechanical": {"L": bc}},
+            "discretization": {"t": t, "N": N},
+            "f_out": 10,
+        }
+
+    if solver == "basic":
+        solver_input = {"mechanical": "spectral_basic"}
+
+    load_case = {"solver": solver_input, "loadstep": [loadstep]}
+
+    # with open(file=f"{output_file}.yaml", mode="w") as f:
+    # yaml.dump(load_case, f, default_flow_style=None, sort_keys=False)
+
+    return damask.LoadcaseGrid(load_case).save(f"{output_file}.yaml")
+
+
+def generate_inputs(
+    cells,
+    size,
+    phase,
+    seed,
+    out_grid,
+    out_material,
+    mode,
+    solver,
+    t,
+    N,
+    rate,
+    output_loadcase,
+):
     grid = make_grid(cells, size)
     grid.save(out_grid)
 
     material = make_material(cells**3, phase, seed)
     material.save(f"{out_material}.yaml")
+
+    load = make_loadcase(mode, solver, t, N, rate, output_loadcase)
 
     return grid
