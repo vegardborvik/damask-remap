@@ -44,9 +44,11 @@ def make_grid(cells: int, size: float):
     return damask.GeomGrid(material=material_ids, size=[size, size, size])
 
 
-def make_material(n_grains: int, phase: str, seed: int | None):
+def make_material(n_grains: int, phase: str, seed: int = None, orientations=None):
     # One material per grain, each with a random orientation.
-    orientations = damask.Rotation.from_random(n_grains, rng_seed=seed)
+    if orientations is None:
+        orientations = damask.Rotation.from_random(n_grains, rng_seed=seed)
+
     config = damask.ConfigMaterial(
         homogenization=HOMOGENIZATION,
         phase={phase: PHASE_ALUMINUM},
@@ -55,15 +57,26 @@ def make_material(n_grains: int, phase: str, seed: int | None):
 
 
 def make_loadcase(
-    mode: str, solver: str, t: int, N: int, rate: float, output_file: str
+    mode: str,
+    solver: str,
+    t: int,
+    N: int,
+    rate: float,
+    output_file: str,
+    f_out: int = 10,
 ):
+
+    if N % f_out != 0:
+        raise ValueError(
+            f"N ({N}) must be a multiple of f_out ({f_out}) so that the final increment is saved."
+        )
 
     if mode == "rolling":
         bc = [[rate, 0, 0], [0, 0, 0], [0, 0, -rate]]
         loadstep = {
             "boundary_conditions": {"mechanical": {"L": bc}},
             "discretization": {"t": t, "N": N},
-            "f_out": 10,
+            "f_out": f_out,
         }
 
     if solver == "basic":
@@ -88,6 +101,7 @@ def generate_inputs(
     N,
     rate,
     name,
+    f_out,
 ):
     out_dir = Path("outputs") / name
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -101,3 +115,8 @@ def generate_inputs(
     load = make_loadcase(mode, solver, t, N, rate, out_dir / f"{mode}.load")
 
     return grid
+
+
+# TODO GENERATE METADATA OF INPUT FILES
+def generate_metadata():
+    return

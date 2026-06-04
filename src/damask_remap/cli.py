@@ -17,9 +17,12 @@ def generate(
     N: int = 200,
     rate: float = 1e-3,
     name: str = "input_files",
+    f_out: int = 10,
 ):
     "Generate microstructure, loadcase, and material files"
-    grid = gen.generate_inputs(cells, size, phase, seed, mode, solver, t, N, rate, name)
+    grid = gen.generate_inputs(
+        cells, size, phase, seed, mode, solver, t, N, rate, name, f_out
+    )
     typer.echo(grid)
 
 
