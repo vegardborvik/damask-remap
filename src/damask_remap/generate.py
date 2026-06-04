@@ -120,3 +120,15 @@ def generate_inputs(
 # TODO GENERATE METADATA OF INPUT FILES
 def generate_metadata():
     return
+
+
+def resolve_inputs(case_dir: Path):
+    try:
+        grid = next(case_dir.glob("*.grid.vti"))
+        material = next(case_dir.glob("*.material.yaml"))
+        load = next(case_dir.glob("*.load.yaml"))
+    except StopIteration:
+        raise FileNotFoundError(
+            f"Missing one of grid/material/load files in {case_dir}"
+        )
+    return grid, material, load

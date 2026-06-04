@@ -1,6 +1,9 @@
 import typer
+from pathlib import Path
 
 from damask_remap import generate as gen
+from damask_remap import simulate as sim
+from damask_remap import remap
 
 app = typer.Typer(help="Orientation-based remapping tool for DAMASK simulations.")
 
@@ -27,9 +30,17 @@ def generate(
 
 
 @app.command()
-def run(segments: int = 4):
+def run(
+    segments: int = 4,
+    name: str = "input_files",
+    deform: bool = False,
+):
     "Run a DAMASK simulation with a remapping method"
-    typer.echo(f"[run] segments={segments}")
+    case_dir = Path("outputs") / name
+    grid, material, load = gen.resolve_inputs(case_dir)
+    result = sim.run_split(name, segments, deform=deform)
+    typer.echo(result)
+    # typer.echo(f"[run] segments={segment}")
 
 
 @app.command()
