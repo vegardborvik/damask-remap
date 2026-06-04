@@ -1,6 +1,7 @@
 import numpy as np
 import damask
 import yaml
+from pathlib import Path
 
 # Initializing standard material physics for Aluminium phase
 # Parameters taken from the example file from DAMASK
@@ -70,7 +71,7 @@ def make_loadcase(
 
     load_case = {"solver": solver_input, "loadstep": [loadstep]}
 
-    # with open(file=f"{output_file}.yaml", mode="w") as f:
+    # with open(file=output_file, mode="w") as f:
     # yaml.dump(load_case, f, default_flow_style=None, sort_keys=False)
 
     return damask.LoadcaseGrid(load_case).save(f"{output_file}.yaml")
@@ -81,21 +82,22 @@ def generate_inputs(
     size,
     phase,
     seed,
-    out_grid,
-    out_material,
     mode,
     solver,
     t,
     N,
     rate,
-    output_loadcase,
+    name,
 ):
+    out_dir = Path("outputs") / name
+    out_dir.mkdir(parents=True, exist_ok=True)
+
     grid = make_grid(cells, size)
-    grid.save(out_grid)
+    grid.save(out_dir / f"{mode}.grid")
 
     material = make_material(cells**3, phase, seed)
-    material.save(f"{out_material}.yaml")
+    material.save(out_dir / f"{mode}.material.yaml")
 
-    load = make_loadcase(mode, solver, t, N, rate, output_loadcase)
+    load = make_loadcase(mode, solver, t, N, rate, out_dir / f"{mode}.load")
 
     return grid

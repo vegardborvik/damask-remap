@@ -13,6 +13,7 @@ Miniforge3-Linux-x86_64.sh
 *.vtr
 results_*/
 remap_log*.txt
+outputs/
 
 #OS
 .DS_Store

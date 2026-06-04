@@ -11,32 +11,15 @@ def generate(
     size: float = 1.0e-3,
     phase: str = "Aluminium",
     seed: int = 42,
-    out_grid: str = "grid",
-    out_material: str = "material",
     mode: str = "rolling",
     solver: str = "basic",
     t: int = 100,
     N: int = 200,
     rate: float = 1e-3,
-    output_loadcase: str = "load",
+    name: str = "input_files",
 ):
     "Generate microstructure, loadcase, and material files"
-    grid = gen.generate_inputs(
-        cells,
-        size,
-        phase,
-        seed,
-        out_grid,
-        out_material,
-        mode,
-        solver,
-        t,
-        N,
-        rate,
-        output_loadcase,
-    )
-    typer.echo(f"Wrote {out_grid}.vti ({cells}³ = {cells**3} grains)")
-    typer.echo(f"Wrote {out_material}.yaml")
+    grid = gen.generate_inputs(cells, size, phase, seed, mode, solver, t, N, rate, name)
     typer.echo(grid)
 
 
