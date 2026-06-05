@@ -15,6 +15,9 @@ results_*/
 remap_log*.txt
 outputs/
 
+# Scratch / throwaway test files
+scratch/
+
 #OS
 .DS_Store
 

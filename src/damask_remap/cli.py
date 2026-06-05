@@ -11,7 +11,7 @@ app = typer.Typer(help="Orientation-based remapping tool for DAMASK simulations.
 @app.command()
 def generate(
     cells: int = 16,
-    size: float = 1.0e-3,
+    size: float = 1.0,
     phase: str = "Aluminium",
     seed: int = 42,
     mode: str = "rolling",
@@ -30,17 +30,29 @@ def generate(
 
 
 @app.command()
-def run(
+def run_split(
     segments: int = 4,
     name: str = "input_files",
     deform: bool = False,
 ):
     "Run a DAMASK simulation with a remapping method"
     case_dir = Path("outputs") / name
-    grid, material, load = gen.resolve_inputs(case_dir)
-    result = sim.run_split(name, segments, deform=deform)
-    typer.echo(result)
+    sim.run_split(name, segments, deform=deform)
     typer.echo(f"[run] segments={segments}")
+    typer.echo(f"Writing to {case_dir}")
+
+
+@app.command()
+def run_auto(
+    name: str = "input_files",
+    max_segments: int = 50,
+    deform: bool = False,
+):
+    "Run a DAMASK simulation with an automatic remapping method."
+    case_dir = Path("outputs") / name
+    typer.echo(f"[run_auto] deform={deform}")
+    typer.echo(f"Writing to {case_dir}")
+    sim.run_automatic(name, max_segments=max_segments, deform=deform)
 
 
 @app.command()
