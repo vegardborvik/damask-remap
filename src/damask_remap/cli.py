@@ -40,7 +40,7 @@ def run(
     grid, material, load = gen.resolve_inputs(case_dir)
     result = sim.run_split(name, segments, deform=deform)
     typer.echo(result)
-    # typer.echo(f"[run] segments={segment}")
+    typer.echo(f"[run] segments={segments}")
 
 
 @app.command()
