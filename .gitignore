@@ -15,8 +15,9 @@ results_*/
 remap_log*.txt
 outputs/
 
-# Scratch / throwaway test files
+# Scratch / local-only dev tools (not part of the published package)
 scratch/
+tests/
 
 #OS
 .DS_Store
