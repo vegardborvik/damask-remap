@@ -3,12 +3,12 @@
 Orientation-based remapping for DAMASK crystal-plasticity simulations, used to study texture
 evolution at large plastic deformations.
 
-The method is built for low-resolution, statistical microstructures where each voxel is a single
-grain with its own orientation. DAMASK's spectral solver tends to lose convergence at large deformations, 
-making it hard to reach large plastic deformations. This tool splits the simulation into segments 
-and remaps the crystal orientations from one segment to the next, letting the simulation continue 
-past where a continuous simulation would fail. It is a texture-oriented remap, only the orientations 
-are transferred, and the mechanical state is not preserved.
+The method is built for low-resolution microstructures where each voxel represents a single grain. 
+DAMASK's spectral solver tends to lose convergence at large deformations, making it hard to simulate 
+large plastic deformations. This tool splits the simulation into segments and remaps the crystal
+orientations from one segment to the next, letting the simulation continue past where a continuous 
+simulation would fail. Only the orientations are transferred between segments, and the mechanical 
+state is not preserved.
 
 ## How it works
 
