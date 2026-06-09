@@ -99,7 +99,6 @@ def generate_inputs(config: RunConfig):
     return grid
 
 
-# TODO GENERATE METADATA OF INPUT FILES
 def generate_metadata(config: RunConfig, out_dir: Path):
     run_record = yaml.safe_dump(config.model_dump(), sort_keys=False)
     (out_dir / "run.yaml").write_text(run_record)
