@@ -2,6 +2,7 @@ import damask
 import numpy as np
 
 from damask_remap import generate as gen
+from damask_remap.config import MaterialConfig
 
 
 def remap_orientations(result_file, original_grid_file, phase, *, deform: bool):
@@ -19,6 +20,8 @@ def remap_orientations(result_file, original_grid_file, phase, *, deform: bool):
 
     material_ids = np.arange(len(O)).reshape(grid.cells, order="F")
     new_grid = damask.GeomGrid(material=material_ids, size=size)
-    new_material = gen.make_material(len(O), phase, orientations=orientations)
+    new_material = gen.make_material(
+        MaterialConfig(phase=phase), len(O), orientations=orientations
+    )
 
     return new_grid, new_material

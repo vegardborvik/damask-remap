@@ -10,4 +10,6 @@ dependencies:
   - matplotlib
   - vtk
   - pandas
+  - orix
+  - pydantic
 prefix: /home/vegard/miniforge3/envs/damask-remap

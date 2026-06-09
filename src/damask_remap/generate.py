@@ -3,6 +3,8 @@ import damask
 import yaml
 from pathlib import Path
 
+from damask_remap.config import GridConfig, LoadConfig, MaterialConfig, RunConfig
+
 # Initializing standard material physics for Aluminium phase
 # Parameters taken from the example file from DAMASK
 
@@ -37,49 +39,38 @@ PHASE_ALUMINUM = {
 }
 
 
-def make_grid(cells: int, size: float):
+def make_grid(grid: GridConfig):
     # The cells³ grid where every voxel is its own grain (Maximum 32x32x32 or the DAMASK_grid will fail)
-    n_grains: int = cells**3
-    material_ids = np.arange(n_grains).reshape(cells, cells, cells)
-    return damask.GeomGrid(material=material_ids, size=[size, size, size])
+    n_grains: int = grid.cells**3
+    material_ids = np.arange(n_grains).reshape(grid.cells, grid.cells, grid.cells)
+    return damask.GeomGrid(material=material_ids, size=grid.size)
 
 
-def make_material(n_grains: int, phase: str, seed: int = None, orientations=None):
+def make_material(material: MaterialConfig, n_grains: int, orientations=None):
     # One material per grain, each with a random orientation.
     if orientations is None:
-        orientations = damask.Rotation.from_random(n_grains, rng_seed=seed)
+        orientations = damask.Rotation.from_random(n_grains, rng_seed=material.seed)
 
     config = damask.ConfigMaterial(
         homogenization=HOMOGENIZATION,
-        phase={phase: PHASE_ALUMINUM},
+        phase={material.phase: PHASE_ALUMINUM},
     )
-    return config.material_add(phase=phase, O=orientations, homogenization="SX")
+    return config.material_add(
+        phase=material.phase, O=orientations, homogenization="SX"
+    )
 
 
-def make_loadcase(
-    mode: str,
-    solver: str,
-    t: int,
-    N: int,
-    rate: float,
-    output_file: str,
-    f_out: int = 10,
-):
+def make_loadcase(load: LoadConfig, output_file):
 
-    if N % f_out != 0:
-        raise ValueError(
-            f"N ({N}) must be a multiple of f_out ({f_out}) so that the final increment is saved."
-        )
-
-    if mode == "rolling":
-        bc = [[rate, 0, 0], [0, 0, 0], [0, 0, -rate]]
+    if load.mode == "rolling":
+        bc = [[load.rate, 0, 0], [0, 0, 0], [0, 0, -load.rate]]
         loadstep = {
             "boundary_conditions": {"mechanical": {"L": bc}},
-            "discretization": {"t": t, "N": N},
-            "f_out": f_out,
+            "discretization": {"t": load.t, "N": load.N},
+            "f_out": load.f_out,
         }
 
-    if solver == "basic":
+    if load.solver == "basic":
         solver_input = {"mechanical": "spectral_basic"}
 
     load_case = {"solver": solver_input, "loadstep": [loadstep]}
@@ -90,36 +81,28 @@ def make_loadcase(
     return damask.LoadcaseGrid(load_case).save(f"{output_file}.yaml")
 
 
-def generate_inputs(
-    cells,
-    size,
-    phase,
-    seed,
-    mode,
-    solver,
-    t,
-    N,
-    rate,
-    name,
-    f_out,
-):
-    out_dir = Path("outputs") / name
+def generate_inputs(config: RunConfig):
+    out_dir = Path("outputs") / config.name
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    grid = make_grid(cells, size)
-    grid.save(out_dir / f"{mode}.grid")
+    grid = make_grid(config.grid)
+    grid.save(out_dir / f"{config.load.mode}.grid")
 
-    material = make_material(cells**3, phase, seed)
-    material.save(out_dir / f"{mode}.material.yaml")
+    material = make_material(config.material, n_grains=config.grid.cells**3)
+    material.save(out_dir / f"{config.load.mode}.material.yaml")
 
-    load = make_loadcase(mode, solver, t, N, rate, out_dir / f"{mode}.load")
-
+    load = make_loadcase(
+        config.load,
+        out_dir / f"{config.load.mode}.load",
+    )
+    generate_metadata(config, out_dir)
     return grid
 
 
 # TODO GENERATE METADATA OF INPUT FILES
-def generate_metadata():
-    return
+def generate_metadata(config: RunConfig, out_dir: Path):
+    run_record = yaml.safe_dump(config.model_dump(), sort_keys=False)
+    (out_dir / "run.yaml").write_text(run_record)
 
 
 def resolve_inputs(case_dir: Path):

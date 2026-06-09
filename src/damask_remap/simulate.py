@@ -6,7 +6,9 @@ import shutil
 import copy
 
 from damask_remap import generate as gen
+from damask_remap.config import RunConfig
 from damask_remap.remap import remap_orientations
+from damask_remap.config import MaterialConfig
 
 
 def run_split(name: str, segments: int, *, deform: bool = False):

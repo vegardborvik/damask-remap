@@ -1,32 +1,70 @@
 import typer
+import yaml
+from typing import Literal
 from pathlib import Path
 
 from damask_remap import generate as gen
 from damask_remap import simulate as sim
 from damask_remap import remap
+from damask_remap.config import RunConfig
 
 app = typer.Typer(help="Orientation-based remapping tool for DAMASK simulations.")
 
 
 @app.command()
 def generate(
-    cells: int = 16,
-    size: float = 1.0,
-    phase: str = "Aluminium",
-    seed: int = 42,
-    mode: str = "rolling",
-    solver: str = "basic",
-    t: int = 100,
-    N: int = 200,
-    rate: float = 1e-3,
-    name: str = "input_files",
-    f_out: int = 10,
+    config: Path | None = None,
+    cells: int | None = None,
+    size: list[float] | None = None,
+    phase: str | None = None,
+    seed: int | None = None,
+    mode: Literal["rolling"] | None = None,
+    solver: Literal["basic"] | None = None,
+    t: int | None = None,
+    N: int | None = None,
+    rate: float | None = None,
+    name: str | None = None,
+    f_out: int | None = None,
 ):
     "Generate microstructure, loadcase, and material files"
-    grid = gen.generate_inputs(
-        cells, size, phase, seed, mode, solver, t, N, rate, name, f_out
-    )
+    data = yaml.safe_load(config.read_text()) if config else {}
+    data.setdefault("grid", {})
+    data.setdefault("load", {})
+    data.setdefault("material", {})
+
+    if name is not None:
+        data["name"] = name
+    if cells is not None:
+        data["grid"]["cells"] = cells
+    if size is not None:
+        data["grid"]["size"] = size
+    if phase is not None:
+        data["material"]["phase"] = phase
+    if seed is not None:
+        data["material"]["seed"] = seed
+    if mode is not None:
+        data["load"]["mode"] = mode
+    if solver is not None:
+        data["load"]["solver"] = solver
+    if t is not None:
+        data["load"]["t"] = t
+    if N is not None:
+        data["load"]["N"] = N
+    if rate is not None:
+        data["load"]["rate"] = rate
+    if f_out is not None:
+        data["load"]["f_out"] = f_out
+
+    cfg = RunConfig(**data)
+    grid = gen.generate_inputs(cfg)
     typer.echo(grid)
+
+    # if config is not None:
+    #     cfg = RunConfig(**yaml.safe_load(config.read_text()))
+    # else:
+    #     cfg = RunConfig()
+    # grid = gen.generate_inputs(cfg)
+    # typer.echo(grid)
 
 
 @app.command()
